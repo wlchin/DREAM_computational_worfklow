@@ -5,10 +5,10 @@ library(gt)
 library("tidyr")
 library("dplyr")
 
-tp123_pcgse <- readRDS("results/tp123_pgsce.rds")
-tp12_pcgse <- readRDS("results/tp12_pgsce.rds")
-tp1_pcgse <- readRDS("results/tp1_pgsce.rds")
-p123_pcgse <- readRDS("results/p123_pgsce.rds")
+tp123_pcgse <- readRDS("results/tp123_pcgse.rds")
+tp12_pcgse <- readRDS("results/tp12_pcgse.rds")
+tp1_pcgse <- readRDS("results/tp1_pcgse.rds")
+p123_pcgse <- readRDS("results/p123_pcgse.rds")
 
 tptest <- tp123_pcgse[,-1]
 data_wide <- spread(tptest, gene_set_names, FDR)
