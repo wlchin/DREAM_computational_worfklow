@@ -8,7 +8,7 @@ DA_neighbourhoods = lfc[lfc["FDR"] < 0.1]
 binned_neighbhourhoods_on_LFC = pd.cut(DA_neighbourhoods["logFC"], [-5,-4, -3, -2, -1, 0, 1, 2, 3, 4, 5])
 
 patients = pd.read_csv(snakemake.input[1])
-LFC_and_FDR_dataframe = DA_neighbourhoods[["Unnamed: 0", "logFC", "FDR"]]
+LFC_and_FDR_dataframe = DA_neighbourhoods[["index_cell", "logFC", "FDR"]]
 LFC_and_FDR_dataframe.columns = ["index_cell", "logFC", "FDR"]
 ptslfc = patients.merge(LFC_and_FDR_dataframe)
 
@@ -19,9 +19,9 @@ pheno = pd.read_pickle("data/index.p").reindex(patientmat.T.index)
 colour_code = colours = {0:"r", 1:"b"}
 row_colours = pheno["PFS_6M"].map(colour_code)
 
-fig = sns.clustermap(patientmat.T, row_colors=row_colours, col_cluster=False)
-fig.savefig(snakemake.output[0])
+#fig = sns.clustermap(patientmat.T, row_colors=row_colours, col_cluster=False)
+#fig.savefig(snakemake.output[0])
 
 csv_for_vis_heatmap = patientmat.T
 csv_for_vis_heatmap["pheno"] = pheno["PFS_6M"]
-csv_for_vis_heatmap.to_csv(snakemake.output[1])
+csv_for_vis_heatmap.to_csv(snakemake.output[0])
