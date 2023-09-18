@@ -61,5 +61,5 @@ hec_sp <- ggplot(testdf4, aes(x = cluster, y = timepoint)) + xlab("signature enr
   scale_fill_distiller(palette ="RdBu", direction = -1)
 
 hec_sp
-ggsave("results/ballplot.png", hec_sp, dpi = 600, width = 6.73, height = 2.69)
+ggsave("results/stem_signatures_across_time_per_cluster.png", hec_sp, dpi = 600, width = 6.73, height = 2.69)
 
