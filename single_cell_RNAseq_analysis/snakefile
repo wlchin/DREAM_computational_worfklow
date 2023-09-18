@@ -71,7 +71,8 @@ rule clustering_and_preprocessing:
 
 rule visualise_UMAP:
     input:
-        'results/pca.h5ad'
+        'results/pca.h5ad',
+        "results/colscheme.csv"
     output:
         'results/by_pfs.png', 
         'results/by_timepoint.png', 
@@ -241,7 +242,6 @@ rule get_DA_cell_counts_per_celltype:
         "results/timepoint0_composition_counts.csv",
         "data/index.p"
     output:
-        "results/composition_mats/{celltype}.png",
         "results/composition_mats/{celltype}.csv"
     singularity:
         "docker://wlc27/dream_computational_workflow_python_container:v1"
