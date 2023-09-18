@@ -1,0 +1,260 @@
+
+cell_list = ['CD14_Mono',
+ 'CD4_Naive',
+ 'NK',
+ 'CD4_TCM',
+ 'CD8_TEM',
+ 'CD8_Naive',
+ 'Platelet',
+ 'Eryth',
+ 'B_intermediate',
+ 'CD4_Proliferating',
+ 'NK_CD56bright',
+ 'pDC',
+ 'CD16_Mono',
+ 'cDC2',
+ 'B_naive',
+ 'Doublet',
+ 'CD4_TEM',
+ 'MAIT',
+ 'Treg',
+ 'gdT',
+ 'NK_Proliferating',
+ 'Plasmablast',
+ 'dnT',
+ 'HSPC',
+ 'cDC1',
+ 'ILC',
+ 'CD4_CTL',
+ 'ASDC']
+
+celltypes_selected = ["CD14_Mono",
+               "CD4_TCM",
+               "NK",
+               "CD8_TEM",
+               "CD4_Naive",
+               "CD16_Mono",
+               "B_naive",
+               "CD8_Naive",
+               "CD4_TEM",
+               "Treg"]
+
+
+timepoint = [0,1,2]
+
+rule all:
+    input:
+        'results/by_celltype.png', # Figure 2A
+        'results/by_timepoint.png', # Figure 2B
+        'results/by_pfs.png', # Figure 2C    
+        "results/barplot.png", # Figure 2D
+        "results/beeswarm.png", # Figure 2E
+        "figures/dotplot_Bcell.png", # Figure S2A
+        "figures/dotplot_CD8.png", # Figure S2B
+        "figures/dotplot_CD4.png", # Figure S2C
+        "figures/dotplot_NK.png", # Figure S2D
+        "figures/dotplot_Mono.png", # Figure S2E
+        "results/individual_barplots_per_timepoint.png", # Figure S2F
+        "results/summarised_composition.png", # Figure S2G
+        "results/ifn_gamma_response.png", # Figure S2H
+
+rule clustering_and_preprocessing:
+    input:
+        'data/dream.h5ad'
+    output:
+        'results/pca.h5ad',
+        'results/cell_metadata.csv'
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/clustering_and_preprocessing.py"
+
+rule visualise_UMAP:
+    input:
+        'results/pca.h5ad'
+    output:
+        'results/by_pfs.png', 
+        'results/by_timepoint.png', 
+        'results/by_celltype.png', 
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/vis_UMAP.py"
+
+rule plot_cell_proportions:
+    input:
+        "results/cell_metadata.csv"
+    output:
+        "results/props.rds",
+        "results/barplot.png", 
+        "results/colscheme.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/plot_cell_proportions.R"
+
+rule extract_CD8_TEM_for_detailed_analysis:
+    input:
+        'data/dream.h5ad'
+    output:
+        "data/CD8_TEM.h5ad",
+        "data/metadata_CD8TEM.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/extract_CD8TEM.py"
+
+rule plot_cell_markers:
+    input:
+        'data/dream.h5ad'
+    output:
+        "figures/dotplot_Bcell.png", 
+        "figures/dotplot_CD4.png", 
+        "figures/dotplot_CD8.png", 
+        "figures/dotplot_Mono.png", 
+        "figures/dotplot_NK.png" 
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/plot_markers_for_celltypes.py"
+
+rule individual_plot_of_cell_proportions:
+    input:
+        "results/props.rds"
+    output:
+        "results/individual_barplots_per_timepoint.png" 
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/plot_props_across_time.R"
+
+rule run_anova_across_cell_proportions:
+    input:
+        "results/props.rds"
+    output:
+        "results/anova_results.csv",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/run_anova.R"
+
+rule run_milo:
+    input:
+        'results/pca.h5ad',
+    output:
+        "results/contrast_0.csv",
+        "results/contrast_1.csv",
+        "results/contrast_2.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/milo_analysis.py"
+
+rule plot_beeswarm_from_milo_results:
+    input:
+        "results/contrast_0.csv",
+        "results/contrast_1.csv",
+        "results/contrast_2.csv"
+    output:
+        "results/beeswarm.png", 
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/plot_beeswarm.R"
+        
+rule get_functional_enrichment_per_cell_on_msigdb_genesets:
+    input:
+        "data/msigdb.p",
+        'data/dream.h5ad'
+    output:
+        "results/CD8TEM_IFNgamma.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/get_enrichment.py"
+        
+rule visualise_IFN_gamma_response_on_CD8TEM:
+    input:
+        "results/CD8TEM_IFNgamma.csv"
+    output:
+        "results/ifn_gamma_response.png",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/visualisation_gamma.R"
+        
+rule get_average_expression_per_neighbourhood:
+    input:
+        "results/pca.h5ad" 
+    output:
+        "results/condensed.h5ad",
+        "data/UMAPed_blood.h5ad",
+        "data/index.p"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/get_average_neighbourhood_gene_expression.py"
+
+rule get_enrichment_for_neighbourhood_averages:
+    input:
+        "results/condensed.h5ad", 
+        "data/msigdb.p"
+    output:
+        "results/enrichment_all_celltypes_top_pathways.csv" 
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/run_decouplr_on_neighbourhoods.py"
+
+rule get_DA_per_celltype:
+    input: 
+        "results/enrichment_all_celltypes_top_pathways.csv",
+        "data/UMAPed_blood.h5ad",
+        "results/contrast_0.csv",
+        "results/contrast_1.csv",
+        "results/contrast_2.csv"
+    output: 
+        expand("results/{celltype}_timepoint{tp}.csv", celltype = cell_list, tp = timepoint)
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script: 
+        'scripts/merge_metadata_milo_sc.py'
+
+rule get_DA_cell_counts_all_timepoints:
+    input: 
+        "data/UMAPed_blood.h5ad",
+        "results/contrast_0.csv",
+        "results/contrast_1.csv",
+        "results/contrast_2.csv"
+    output: 
+        "results/timepoint0_composition_counts.csv",
+        "results/timepoint1_composition_counts.csv",
+        "results/timepoint2_composition_counts.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script: 
+        "scripts/get_DA_neighbourhood_counts.py"
+        
+rule get_DA_cell_counts_per_celltype:
+    input:
+        "results/{celltype}_timepoint0.csv",
+        "results/timepoint0_composition_counts.csv",
+        "data/index.p"
+    output:
+        "results/composition_mats/{celltype}.png",
+        "results/composition_mats/{celltype}.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/get_DA_cell_counts_per_celltype.py"
+
+rule get_DA_cell_counts_per_celltype_grouped_by_response:
+    input:
+        expand("results/composition_mats/{celltype}.csv", celltype = celltypes_selected)
+    output:
+        "results/summarised_composition.png"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/vis_composition.R"
+

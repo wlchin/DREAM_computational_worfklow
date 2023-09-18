@@ -1,0 +1,190 @@
+rule all:
+    input:
+        "results/UMAP.png", # Figure 3A
+        "results/barplot_props.png", #Figure 3B
+        "results/beewswarm.png", # Figure 3C
+        "results/markers_CD8Tcells.png", # Figure 3D
+        "results/markers_acitvation_cluster0.png", # Figure 3E
+        "results/markers_acitvation_cluster1.png", # Figure 3E
+        "results/markers_acitvation_cluster2.png", # Figure 3E
+        "results/PACE_enrichment_CD8TEM2.png", # Fig3F
+        "results/ballplot.png", # Figure 3H,
+        "results/composition_heatmap_cd8_TEM.pdf", # Figure S3A
+        "results/markers_per_cluster.png", #Figure S3C
+        "results/markersheatmap.png", # Figure S3D
+        "results/cluster1_PACE.png" # Figure S3D interaction
+
+rule extract_CD8_TEM:
+    input:
+        'data/dream.h5ad'
+    output:
+        "data/CD8TEM.h5ad",
+        "data/metadata_CD8TEM.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/extract_CD8TEM.py"
+
+rule get_seurat:
+    input: 
+        "data/CD8TEM.h5ad",
+        "data/metadata_CD8TEM.csv"
+    output: 
+        "data/CD8Tcells_seurat.rds",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/prepare_CD8_seurat_object.R"
+
+rule get_markers_suppfig:
+    input: 
+        "data/CD8Tcells_seurat.rds"
+    output:
+        "results/markersheatmap.png" # Sup 3
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/showmarkersandDE.R"
+
+rule remove_singleton_clusters_Fig3AB:
+    input:
+        "data/CD8Tcells_seurat.rds"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    output:
+        "results/UMAP.png", # Figure 3A
+        "results/barplot_props.png" # Figure 3B
+    script:
+        "scripts/plot_UMAP.R"
+
+rule get_average_expression_part0:
+    input:
+        "data/CD8Tcells_seurat.rds"
+    output:
+        "data/CD8_seurat_clusters.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/get_clusters_from_seurat.R"
+
+rule get_average_expression_part1:
+    input:
+        "data/CD8TEM.h5ad",
+        "data/CD8_seurat_clusters.csv"
+    output:
+        "results/zscaled_proprotions.csv",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/markers_average.py"
+
+rule get_average_expression_markers:
+    input:
+        "results/zscaled_proprotions.csv"
+    output:
+        "results/markers_CD8Tcells.png" # Figure 3D
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/Heatmap_expression.R"
+        
+rule get_expression_DE_in_subpopulations_part1:
+    input:
+        "data/CD8TEM.h5ad",
+        "data/CD8_seurat_clusters.csv"
+    output:
+        "results/res_cluster0.csv",
+        "results/res_cluster1.csv",
+        "results/res_cluster2.csv",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/markers_timepoints.py"
+
+rule get_expression_DE_in_subpopulations_part2:
+    input:
+        "results/res_cluster0.csv",
+        "results/res_cluster1.csv",
+        "results/res_cluster2.csv",
+    output:
+        "results/markers_acitvation_cluster0.png",
+        "results/markers_acitvation_cluster1.png",
+        "results/markers_acitvation_cluster2.png"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/GO_activation_plots.R"
+
+rule get_beeswarm_diagram_specific_to_CD8TEM:
+    input:
+        "data/CD8_seurat_clusters.csv",
+        "data/contrast_0.csv",
+        "data/contrast_1.csv",
+        "data/contrast_2.csv"
+    output:
+        "results/beewswarm.png"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/Making_facet_beeswarm.R"
+    
+rule plot_canonical_markers:
+    input:
+        "data/CD8Tcells_seurat.rds",
+        "data/stem_all_gene_name.rds"
+    output:
+        "results/markers_per_cluster.png", 
+        "results/PACE_enrichment_CD8TEM2.png", 
+        "results/canonical_cluster0.rds",
+        "results/canonical_cluster1.rds",
+        "results/canonical_cluster2.rds"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/canonicalmarkers.R"
+    
+rule get_per_patient_cell_counts:
+    input:
+        "data/CD8Tcells_seurat.rds"
+    output:
+        "results/composition_heatmap_cd8_TEM.pdf" 
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/per_patient_cell_counts.R"
+
+rule do_nebula_part1:
+    input:
+        "data/CD8Tcells_seurat.rds",
+    output:
+        "results/cluster0_interaction.rds",
+        "results/cluster1_interaction.rds", 
+        "results/cluster2_interaction.rds",
+        "results/cluster0_nebula_DE.rds",
+        "results/cluster1_nebula_DE.rds",
+        "results/cluster2_nebula_DE.rds",
+        "results/cluster1_PACE.png"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/NEBULA_DE.R"
+
+rule DE_analysis_seurat:
+    input: 
+        "data/CD8Tcells_seurat.rds"
+    output:
+        expand("results/cluster{label}_timepoint{tpt}.rds", label = [0,1,2], tpt = [0,1,2])
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/DE_analysis_RvsNR.R"    
+
+rule plot_de_analysis_enrichment_stem_signatures:
+    input:
+        expand("results/cluster{label}_timepoint{tpt}.rds", label = [0,1,2], tpt = [0,1,2])
+    output:
+        "results/ballplot.png",       
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/ballplot.R"

@@ -1,0 +1,38 @@
+Building DAG of jobs...
+Pulling singularity image docker://wlc27/dream_computational_workflow_r_container:v1.
+Pulling singularity image docker://wlc27/dream_computational_workflow_python_container:v1.
+Using shell: /usr/bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                                            count    min threads    max threads
+-------------------------------------------  -------  -------------  -------------
+DE_analysis_seurat                                 1              1              1
+all                                                1              1              1
+do_nebula_part1                                    1              1              1
+extract_CD8_TEM                                    1              1              1
+get_average_expression_markers                     1              1              1
+get_average_expression_part0                       1              1              1
+get_average_expression_part1                       1              1              1
+get_beeswarm_diagram_specific_to_CD8TEM            1              1              1
+get_expression_DE_in_subpopulations_part1          1              1              1
+get_expression_DE_in_subpopulations_part2          1              1              1
+get_markers_suppfig                                1              1              1
+get_per_patient_cell_counts                        1              1              1
+get_seurat                                         1              1              1
+plot_canonical_markers                             1              1              1
+plot_de_analysis_enrichment_stem_signatures        1              1              1
+remove_singleton_clusters_Fig3AB                   1              1              1
+total                                             16              1              1
+
+Select jobs to execute...
+
+[Mon Sep 18 07:50:34 2023]
+rule extract_CD8_TEM:
+    input: data/dream.h5ad
+    output: data/CD8TEM.h5ad, data/metadata_CD8TEM.csv
+    jobid: 3
+    reason: Missing output files: data/metadata_CD8TEM.csv, data/CD8TEM.h5ad
+    resources: tmpdir=/tmp
+
+Activating singularity image /data/DREAM_single_cell_peripheral_blood/Figures/DREAM_computational_workflow/single_cell_CD8_TEM_analysis/.snakemake/singularity/f74a011ba52cafc3901106e86be2e41c.simg

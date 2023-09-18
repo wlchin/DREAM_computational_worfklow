@@ -1,0 +1,229 @@
+
+suffix = ["t","tp1", "p123", "tp12", "tp123"]
+timepoints = ["Timepoint1", "Timepoint2", "Timepoint0"]
+
+rule all:
+    input:
+        "results/heatmap.png", # Figure 4A
+        "results/blood_tree.png", # Figure 4B
+        "results/tumour_tree.png", # Figure 4C
+        "results/performance_table.html", # Figure 4D
+        "results/barplots_blood.png", # Figure 4E
+        "results/barplots_tumour.png", # Figure 4F
+        "results/PFS_surv_pace_Timepoint1.png", # Figure 4G
+        "results/OS_surv_pace_Timepoint1.png", # Figure 4H
+        "results/stem_enrichment_table.html", # Figure S4 table
+
+rule get_data_for_mixomics:
+    input:
+        "data/nanostring.csv",
+        "data/phenodata.csv",
+        "data/tpm_matrix.csv"
+    output:
+        "data/phenodata_PLS.csv",
+        "data/tumour_PLS.csv",
+        "data/peripheralbloodfiltered_PLS.csv",
+        "data/peripheralbloodC2D1filtered_PLS.csv",
+        "data/peripheralbloodC3D1filtered_PLS.csv",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/get_data_for_mixomics.py"
+
+### diablo analyses
+
+rule run_diablo_t:
+    input:
+        "data/phenodata_PLS.csv",
+        "data/tumour_PLS.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    output:
+        "results/diagnostics/full_model_all_samples_t.rds",
+        "results/diagnostics/ncomp_t.rds",
+        "results/diagnostics/keepX_t.rds"
+    script:
+        "scripts/tumour_only_analysis.R"
+
+rule run_diablo_tp12:
+    input:
+        "data/phenodata_PLS.csv",
+        "data/tumour_PLS.csv",
+        "data/peripheralbloodfiltered_PLS.csv",
+        "data/peripheralbloodC2D1filtered_PLS.csv",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    output:
+        "results/diagnostics/full_model_all_samples_tp12.rds",
+        "results/diagnostics/ncomp_tp12.rds",
+        "results/diagnostics/keepX_tp12.rds"
+    script:
+        "scripts/mixomics_run.R"
+
+rule run_diablo_p123:
+    input:
+        "data/phenodata_PLS.csv",
+        "data/peripheralbloodfiltered_PLS.csv",
+        "data/peripheralbloodC2D1filtered_PLS.csv",
+        "data/peripheralbloodC3D1filtered_PLS.csv",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    output:
+        "results/diagnostics/full_model_all_samples_p123.rds",
+        "results/diagnostics/ncomp_p123.rds",
+        "results/diagnostics/keepX_p123.rds"
+    script:
+        "scripts/mixomics_run_peripheral.R"
+
+rule run_diablo_tp123:
+    input:
+        "data/phenodata_PLS.csv",
+        "data/tumour_PLS.csv",
+        "data/peripheralbloodfiltered_PLS.csv",
+        "data/peripheralbloodC2D1filtered_PLS.csv",
+        "data/peripheralbloodC3D1filtered_PLS.csv",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    output:
+        "results/diagnostics/full_model_all_samples_tp123.rds",
+        "results/diagnostics/ncomp_tp123.rds",
+        "results/diagnostics/keepX_tp123.rds"
+    script:
+        "scripts/mixomics_run_all_peripheral_and_tumour.R"
+
+rule plot_cim_and_features:
+    input:
+        "data/phenodata_all.csv",
+        "results/diagnostics/full_model_all_samples_tp1.rds",
+    output:
+        "results/test_blood.txt",
+        "results/test_tumour.txt",
+        "results/heatmap.png", 
+        "results/blood_tree.png", 
+        "results/tumour_tree.png" 
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/plot_cim.R"
+
+rule do_cluster_profiler:
+    input:
+        "results/test_blood.txt",
+        "results/test_tumour.txt",
+        "data/peripheralbloodfiltered_PLS.csv",
+        "data/tumour_PLS.csv",
+    output:
+        "results/tumour.rds",
+        "results/blood.rds"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/do_clusterprofiler_on_genes.R"
+        
+rule do_cluster_profiler_plots:
+    input:
+        "results/tumour.rds",
+        "results/blood.rds"
+    output:
+        "results/barplots_blood.png", # Figure 4E
+        "results/barplots_tumour.png" # Figure 4F
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/enrichment_barplots.R"
+
+rule performance_metrics_calculcate_and_tabulate: 
+    input:
+        expand("results/diagnostics/full_model_all_samples_{mode}.rds", mode = suffix)
+    output:
+        "results/performance_table.html" # Figure 4D
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/table_performance_metric.R"
+
+rule PCGSE_analysis:   
+    input:
+        "data/stem_gene_signature_collection.rds",
+        "results/diagnostics/full_model_all_samples_tp1.rds",
+        "results/diagnostics/full_model_all_samples_tp12.rds",
+        "results/diagnostics/full_model_all_samples_tp123.rds",
+        "results/diagnostics/full_model_all_samples_p123.rds"
+    output:
+        "results/tp123_pcgse.rds",
+        "results/tp12_pcgse.rds",
+        "results/tp1_pcgse.rds",
+        "results/p123_pcgse.rds"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/calculate_pcgse.R"
+
+rule PCGSE_analysis_tabulate:   
+    input:
+        "results/tp123_pcgse.rds",
+        "results/tp12_pcgse.rds",
+        "results/tp1_pcgse.rds",
+        "results/p123_pcgse.rds"
+    output:
+        "results/stem_enrichment_table.html"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/PCGSE_table.R"
+
+rule run_diablo_tp1:
+    input:
+        "data/phenodata_PLS.csv",
+        "data/tumour_PLS.csv",
+        "data/peripheralbloodfiltered_PLS.csv",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    output:
+        "results/diagnostics/full_model_all_samples_tp1.rds",
+        "results/diagnostics/ncomp_tp1.rds",
+        "results/diagnostics/keepX_tp1.rds"
+    script:
+        "scripts/mixomics_run_single.R"
+
+rule get_data_for_survival_analysis:
+    input:
+        "data/nanostring.csv",
+        "data/phenodata.csv",
+        "data/count_matrix.csv",
+    output:
+        "data/timepoint0.csv",
+        "data/timepoint1.csv",
+        "data/timepoint2.csv",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/get_data_for_survival_analysis.py"
+
+rule analyse_enrichment_pace_gene_signature:
+    input:
+        "data/timepoint0.csv",
+        "data/timepoint1.csv",
+        "data/timepoint2.csv",
+        "data/pace.grp", 
+        "data/phenodata_PLS.csv",
+        "data/phenodata_all.csv",
+    output:
+        "results/pace_Timepoint1.csv",
+        "results/pace_Timepoint0.csv",
+        "results/pace_Timepoint2.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/process_ssgsea_enrichment_PACE.py"
+
+rule create_survival_curves:
+    input:
+        "results/{sig}_{tpt}.csv"
+    output:
+        "results/PFS_surv_{sig}_{tpt}.png", 
+        "results/OS_surv_{sig}_{tpt}.png" 
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/survival_analysis.R"

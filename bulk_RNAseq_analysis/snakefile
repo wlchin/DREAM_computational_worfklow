@@ -1,0 +1,134 @@
+
+contrasts = ["Base_C2_interaction", 
+    "Base_C2_nr", 
+    "Base_C2_r", 
+    "Base_r_vs_nr", 
+    "C2_C3_interaction", 
+    "C2_C3_r", 
+    "C2_r_vs_nr", 
+    "C3_C2_nr", 
+    "C3_r_vs_nr"]
+
+rule all:
+    input:
+        "results/tally_DE_genes.png", # Figure 1D
+        "results/barchart.png", # Figure 1E - 1F
+        "results/GSEAplot_antigen.png", # Figure 1G
+        "results/GSEAplot_TCR.png", # Figure 1H
+        "results/upsetplot.png", # Figure S1A
+        "results/pca_plot.png", # Figure S1B - S1D
+        "results/dotplot.png", # Figure S1E
+        "results/stem_enrichment_per_timepoint.png", # Figure 3I
+        "results/interaction_tpt0_tpt1_PACE.png", # Figure S3D
+        "results/count_matrix.csv" # For PLSDA and survival workflow
+
+rule DE_analysis_generate_fit_object:
+    input:
+        "data/entrez_counts.rds",
+        "data/phenodata.rds"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    output:
+        "results/fit_obj.rds",
+        "results/filtered_count_matrix.csv"
+    script:
+        "scripts/generate_fit.R"
+
+rule DE_analysis_generate_contrasts_from_fit_object:
+    input:
+        "results/fit_obj.rds"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    output:
+        expand("DE_results/{contrast_types}.csv", contrast_types = contrasts)
+    script:
+        "scripts/generate_contrasts.R"
+
+rule count_DE_genes_for_each_contrast:
+    input:
+        "DE_results/C2_C3_r.csv",
+        "DE_results/Base_C2_r.csv",
+        "DE_results/Base_C2_nr.csv",
+        "DE_results/C3_C2_nr.csv",
+        "DE_results/Base_r_vs_nr.csv",
+        "DE_results/C2_C3_r.csv",
+        "DE_results/C3_r_vs_nr.csv",
+    output:
+        "results/tally_DE_genes.png"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/barplot_DE_genes.R"
+
+rule DE_gene_functional_enrichment_analysis_timepoint0_timepoint1:
+    input:
+        "DE_results/C2_C3_r.csv",
+        "DE_results/Base_C2_r.csv",
+        "DE_results/Base_C2_nr.csv",
+    output:
+        "results/barchart.png",
+        "results/dotplot.png"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/GOenrichment_DE_genes.R"
+
+rule DE_gene_functional_enrichment_analysis_timepoint0_timepoint1_interactions:
+    input:
+        "DE_results/Base_C2_interaction.csv"
+    output:
+        "results/GSEAplot_antigen.png",
+        "results/GSEAplot_TCR.png",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/GSEAplots.R"
+
+rule DE_gene_functional_enrichment_analysis_stem_signatures:
+    input:
+        "DE_results/Base_C2_interaction.csv",
+        "data/stem_all_entrez.rds"
+    output:
+        "results/stem_enrichment_per_timepoint.png", 
+        "results/interaction_tpt0_tpt1_PACE.png" 
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/stem_signatures.R"
+
+rule PCAplot_Supplementary1:
+    input:
+        "data/entrez_counts.rds",
+        "data/phenodata.rds"
+    output:
+        "results/pca_plot.png" 
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/PCAplots.R"
+
+rule create_upset_plot:
+    input:
+        "DE_results/C2_C3_r.csv",
+        "DE_results/Base_C2_r.csv",
+        "DE_results/Base_C2_nr.csv",
+        "DE_results/C3_C2_nr.csv",
+        "DE_results/Base_r_vs_nr.csv",
+        "DE_results/C2_C3_r.csv",
+        "DE_results/C3_r_vs_nr.csv",
+    output:
+        "results/upsetplot.png"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/upset_plot.R"
+
+rule create_count_matrix_genenames:
+    input:
+        "results/filtered_count_matrix.csv"
+    output:
+        "results/count_matrix.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/create_filtered_matrix_for_PLSDA.R"
