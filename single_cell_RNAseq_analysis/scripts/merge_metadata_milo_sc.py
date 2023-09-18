@@ -1,19 +1,21 @@
 import pandas as pd
 import scanpy as sc
 
-enrichment = pd.read_csv(snakemake.input[0])
-sc_data = sc.read(snakemake.input[1])
-contrast0 = pd.read_csv(snakemake.input[2])
-contrast1 = pd.read_csv(snakemake.input[3])
-contrast2 = pd.read_csv(snakemake.input[4])
+enrichment = pd.read_csv("results/enrichment_all_celltypes_top_pathways.csv")
+sc_data = sc.read("results/condensed.h5ad")
 
-### timepoint 0 
+contrast0 = pd.read_csv("results/contrast_0.csv")
+contrast1 = pd.read_csv("results/contrast_1.csv")
+contrast2 = pd.read_csv("results/contrast_2.csv")
 
-sc_data.obs["index_cell"] = sc_data.obs.index
+print("timepoint 0")
+
+sc_data.obs.index = contrast0["index_cell"]
+contrast0.index = contrast0["index_cell"]
 combined_df = pd.concat([sc_data.obs, contrast0], axis = 1, join = "inner")
 
 enrichment.index = combined_df.index
-enrichment["celltype"] = combined_df["predicted.celltype.l2"]
+enrichment["celltype"] = combined_df["nhood_annotation"]
 enrichment["logFC"] = combined_df["logFC"]
 enrichment["FDR"] = combined_df["FDR"]
 
@@ -23,13 +25,14 @@ for i in enrichment["celltype"].unique():
     x.drop(columns = "Unnamed: 0", inplace = True)
     x.to_csv(filename)
     
-### timepoint 1
+print("timepoint 1")
 
-sc_data.obs["index_cell"] = sc_data.obs.index
+sc_data.obs.index = contrast1["index_cell"]
+contrast1.index = contrast1["index_cell"]
 combined_df = pd.concat([sc_data.obs, contrast1], axis = 1, join = "inner")
 
 enrichment.index = combined_df.index
-enrichment["celltype"] = combined_df["predicted.celltype.l2"]
+enrichment["celltype"] = combined_df["nhood_annotation"]
 enrichment["logFC"] = combined_df["logFC"]
 enrichment["FDR"] = combined_df["FDR"]
 
@@ -41,11 +44,12 @@ for i in enrichment["celltype"].unique():
     
 ### timepoint 2
 
-sc_data.obs["index_cell"] = sc_data.obs.index
+sc_data.obs.index = contrast2["index_cell"]
+contrast2.index = contrast2["index_cell"]
 combined_df = pd.concat([sc_data.obs, contrast2], axis = 1, join = "inner")
 
 enrichment.index = combined_df.index
-enrichment["celltype"] = combined_df["predicted.celltype.l2"]
+enrichment["celltype"] = combined_df["nhood_annotation"]
 enrichment["logFC"] = combined_df["logFC"]
 enrichment["FDR"] = combined_df["FDR"]
 
