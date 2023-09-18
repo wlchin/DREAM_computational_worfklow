@@ -24,7 +24,7 @@ ranks <- res$avg_log2FC
 names(ranks) <- rownames(res)
 ranks_sorted <- sort(ranks, decreasing = TRUE)
 y <- GSEA(ranks_sorted, TERM2GENE = stem_all, pvalueCutoff = 1)
-gseaplot2(y, "PACE", subplots = 1:2, color = "black") 
+gseaplot2(y, "PACE", subplots = 1:2, color = "black", pvalue_table = T) 
 ggsave("results/PACE_enrichment_CD8TEM2.png")
 cluster1 <- y@result
 cluster1$cluster = "CD8_TEM_2"

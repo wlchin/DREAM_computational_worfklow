@@ -7,10 +7,9 @@ x <- readRDS("data/CD8Tcells_seurat.rds")
 x$PFS_6M[x$PFS_6M == 0] <- "NR"
 x$PFS_6M[x$PFS_6M == 1] <- "R"
 
-stem_all <- readRDS("data/signatures/stem_all_gene_name.rds")
+stem_all <- readRDS("data/stem_all_gene_name.rds")
 stem_all <- stem_all[,c(2,1)]
-stemsmol <- stem_all
-#stemsmol <- stem_all[stem_all$gene.set.name == "GALETTI_STEM" | stem_all$gene.set.name == "GALLETTI_TPEX" | stem_all$gene.set.name == "TPEXhi",]
+stemsmol <- stem_all[stem_all$gene.set.name == "PACE" ,]
 
 do_nebula <- function(h5obj) {
   h5obj@meta.data$cdr <- scale(h5obj@meta.data$nFeature_RNA)

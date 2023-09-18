@@ -6,12 +6,10 @@ library(scran)
 library(Seurat)
 library(ggplot2)
 library(dplyr)
-#devtools::install_github('cole-trapnell-lab/monocle3', ref="develop")
 
-#file <- system.file("extdata", "CD8TEM.h5ad", package = "zellkonverter")
-sce <- readH5AD(snakemake@input[[1]], reader = "R") # ignore warning message
+sce <- readH5AD(snakemake@input[[1]], reader = "R") 
 
-CD8TEM <- read.csv(snakemake@input[[2]]) # metadata file
+CD8TEM <- read.csv(snakemake@input[[2]]) 
 rownames(CD8TEM) <- CD8TEM$X
 
 expression_matrix <- assay(sce, "X")
@@ -42,13 +40,8 @@ pbmc <- ScaleData(pbmc, features = all.genes)
 
 pbmc <- RunPCA(pbmc, features = VariableFeatures(object = pbmc))
 
-
 pbmc <- FindNeighbors(pbmc, dims = 1:10)
 pbmc <- FindClusters(pbmc, resolution = 0.3)
 pbmc <- RunUMAP(pbmc, dims = 1:10)
-
-DimPlot(pbmc, reduction = "umap", label = T) + NoLegend()
-ggsave("results/dimplot.pdf", width = 5.02, height = 3.74)
-
 saveRDS(pbmc, snakemake@output[[1]])
 

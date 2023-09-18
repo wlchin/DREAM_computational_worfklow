@@ -9,7 +9,7 @@ rule all:
         "results/markers_acitvation_cluster2.png", # Figure 3E
         "results/PACE_enrichment_CD8TEM2.png", # Fig3F
         "results/ballplot.png", # Figure 3H,
-        "results/composition_heatmap_cd8_TEM.pdf", # Figure S3A
+        "results/composition_heatmap_cd8_TEM.png", # Figure S3A
         "results/markers_per_cluster.png", #Figure S3C
         "results/markersheatmap.png", # Figure S3D
         "results/cluster1_PACE.png" # Figure S3D interaction
@@ -46,7 +46,7 @@ rule get_markers_suppfig:
     script:
         "scripts/showmarkersandDE.R"
 
-rule remove_singleton_clusters_Fig3AB:
+rule plot_UMAP_with_singleton_clusters_filtered:
     input:
         "data/CD8Tcells_seurat.rds"
     singularity:
@@ -147,7 +147,7 @@ rule get_per_patient_cell_counts:
     input:
         "data/CD8Tcells_seurat.rds"
     output:
-        "results/composition_heatmap_cd8_TEM.pdf" 
+        "results/composition_heatmap_cd8_TEM.png" 
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
@@ -156,6 +156,7 @@ rule get_per_patient_cell_counts:
 rule do_nebula_part1:
     input:
         "data/CD8Tcells_seurat.rds",
+        "data/stem_all_gene_name.rds"
     output:
         "results/cluster0_interaction.rds",
         "results/cluster1_interaction.rds", 
@@ -183,8 +184,8 @@ rule plot_de_analysis_enrichment_stem_signatures:
     input:
         expand("results/cluster{label}_timepoint{tpt}.rds", label = [0,1,2], tpt = [0,1,2])
     output:
-        "results/ballplot.png",       
+        "results/stem_signatures_across_time_per_cluster.png",       
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
-        "scripts/ballplot.R"
+        "scripts/enrichment_stem.R"

@@ -44,6 +44,6 @@ ht <- Heatmap(mat, top_annotation = ha, cluster_rows = F, cluster_columns = F, n
   show_column_names = F, column_title = "Patients", 
   row_title = "Clusters")
 
-png("results/composition_heatmap_cd8_TEM.pdf", width = 10.71, height = 2.03, units = "in", res = 600)
+png("results/composition_heatmap_cd8_TEM.png", width = 10.71, height = 2.03, units = "in", res = 600)
 draw(ht)
 dev.off()
