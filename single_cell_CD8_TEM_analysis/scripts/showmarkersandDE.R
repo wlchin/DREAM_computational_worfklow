@@ -6,18 +6,7 @@ library(ggplot2)
 
 x <- readRDS(snakemake@input[[1]])
 
-#recently_activated <- c("KLRG1", "EOMES", "TBX21", "CX3CR1", "FGFBP2", "TCF7", "CXCR5")
-#terminally_exhausted <- c("GZMB", "NKG7", "PRF1", "S1PR5")
-
-#memory <- c("TCF7", "IL7R", "CXCR3")
-#effector <- c("KLRG1", "GZMA", "CX3CR1")
-
 seurat_obj_smol <- subset(x, idents = c("3","6"), invert = T)
-#FeaturePlot(pbmc, recently_activated)
-#FeaturePlot(pbmc, c(recently_activated, terminally_exhausted))
-#FeaturePlot(pbmc, others)
-#ggsave(snakemake@output[[1]], width = 5.67, height = 6.76)
-
 
 seurat_obj_smol <- RenameIdents(object = seurat_obj_smol, 
                                 `0` = "CD8_TEM_1",
@@ -30,12 +19,6 @@ seurat_obj_smol <- RenameIdents(object = seurat_obj_smol,
 )
 
 pbmc.markers <- FindAllMarkers(seurat_obj_smol, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
-
-#pbmc.markers <- FindAllMarkers(pbmc, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
-
-#pbmc.markers %>%
-#  group_by(cluster) %>%
-#  slice_max(n = 2, order_by = avg_log2FC)
 
 pbmc.markers %>%
   group_by(cluster) %>%
