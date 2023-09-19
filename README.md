@@ -7,6 +7,8 @@ This repository contains the computational workflows for the above-mentioned man
 
 ### Running the workflows
 
-These workflows are containerised. Therefore, involve the --run-singularity flag when running snakemake. The two sofware enviroments used across these workflows are large (5GB - 10GB). 
+These workflows are containerised. Therefore, invoke the --run-singularity flag when running snakemake. The two sofware enviroments used across these workflows are large (5GB - 10GB). 
 
+### Runtime statistics
 
+The workflows were executed on a 16-core, 64GB RAM linux machine. Runtime statistics are included for bulk RNAseq, single cell RNAseq and Nanostring data as html reports auto-generated from snakemake.
