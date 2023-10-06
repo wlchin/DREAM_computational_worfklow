@@ -5,15 +5,15 @@ x <- read.csv("results/zscaled_proprotions.csv")
 mat <- x[,-1]
 rownames(mat) <- x$X
 
-mat1 <- mat[1:3, 1:36]
+mat1 <- mat[1:3, 1:38]
 
-split = c(rep("Exhaustion", 5), rep("Naive-like", 4), rep("Effector", 6), rep("Naive-like", 5), rep("Term-Ex", 8), rep("KIR+", 8))
+split = factor(c(rep("Immune checkpoints", 7), rep("Effector", 7), rep("Exhaustion", 10), rep("Stem-like", 8), rep("KLR", 6)), levels=c("Effector", "Immune checkpoints", "Exhaustion", "Stem-like", "KLR"))
 
 #split = c(rep("Exhaustion", 5), rep("Naive-like", 4), rep("Effector", 6), rep("Prog-Ex", 5), rep("Term-Ex", 8), )
 #split = c(rep("Exhaustion", 5), rep("Naive-like", 4))
 
 ht <- Heatmap(mat1, heatmap_width = unit(21, "cm"), 
-        heatmap_height = unit(4, "cm"), 
+        heatmap_height = unit(4, "cm"),
         column_names_gp = grid::gpar(fontsize = 8),
         row_names_gp = grid::gpar(fontsize = 8),
         rect_gp = gpar(col = "white", lwd = 2),

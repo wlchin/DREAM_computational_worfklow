@@ -33,13 +33,28 @@ for clust in adata.obs.seurat_clusters.cat.categories:
 #output = res[["PDCD1", "TOX", "HAVCR2", "LAG3", "TIGIT", "TCF7", "IL7R", "LEF1", "CCR7", "PRF1", "GZMA"]]
 #output = res[["PDCD1", "TOX", "HAVCR2", "LAG3", "TIGIT", "TCF7", "IL7R", "LEF1", "CCR7"]]
 
-df = res[["PDCD1", "TOX", "HAVCR2", "LAG3", "TIGIT", 
-              "TCF7", "IL7R", "LEF1", "CCR7", 
-              "PRF1", "GZMA", "GZMB", "GZMK", "GNLY", "FAS",
-             "SELL", "BATF", "ID3", "BCL6", "NR4A3",
-             "CX3CR1", "CXCR6", "CCL3", "ID2", "ZEB2", "TOX2", "KLRG1", "EOMES",
-             "KIR3DL1", "KIR3DL3", "TYROBP", "KLRC3", "KLRC2", "NCR1", "NCR3", "IKZF2",
-             "CD69", "PTPRC", "TBR1"]] # terminally exhausted
+#df = res[["PDCD1", "TOX", "HAVCR2", "LAG3", "TIGIT", 
+#              "TCF7", "IL7R", "LEF1", "CCR7", 
+#              "PRF1", "GZMA", "GZMB", "GZMK", "GNLY", "FAS",
+#             "SELL", "BATF", "ID3", "BCL6", "NR4A3",
+#             "CX3CR1", "CXCR6", "CCL3", "ID2", "ZEB2", "TOX2", "KLRG1", "EOMES",
+#             "KIR3DL1", "KIR3DL3", "TYROBP", "KLRC3", "KLRC2", "NCR1", "NCR3", "IKZF2",
+#             "CD69", "PTPRC", "TBR1"]] # terminally exhausted
+
+df = res[["PDCD1", "HAVCR2", "LAG3", "TIGIT", "TNFRSF9", "TNFRSF18", "ENTPD1", # immune checkpoint
+              "PRF1", "GZMA", "GZMB", "GZMK", "GNLY", "FAS", "ITGAE", #effector
+              "CCL3", "CX3CR1", "CXCL13", "CXCR6", "KLRG1", "ID2", "ZEB2", "EOMES", "PRDM1", "TOX", # exhaustion
+              "TCF7", "MYB", "SLAMF6", "IL7R", "CCR7", "LEF1", "SELL", "BATF", # stem like
+             "KLRC3", "KLRC1", "KLRC2", "KIR3DL1", "KIR3DL3", "NCR1"]] # KLR
+
+# CCL3, CX3CR1, CXCL13,CXCR6, KLRG1, ID2, ZEB2, EOMES, PRDM1, TOX. 
+
+#KeyError: "['41BB', 'GITR', 'CD39', 'CD103', 'CD62L'] not in index"
+#GITR TNFRSF18
+#41BB TNFRSF9
+#CD39 ENTPD1
+#CD103 ITGAE
+# CD62L is SELL
 
 #IKZF2 and NK cell–associated genes (e.g., TYROBP, KLRC2, KLRC3, NCR1, and NCR3
 
@@ -52,3 +67,4 @@ df_z = df[numeric_cols].apply(zscore)
 
 df_z.to_csv("results/zscaled_proprotions.csv")
 
+print(df_z.shape)
