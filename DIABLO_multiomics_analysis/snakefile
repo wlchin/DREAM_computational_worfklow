@@ -13,6 +13,8 @@ rule all:
         "results/PFS_surv_pace_Timepoint1.png", # Figure 4G
         "results/OS_surv_pace_Timepoint1.png", # Figure 4H
         "results/stem_enrichment_table.html", # Figure S4 table
+        "results/test_blood_tp12.txt",
+        "results/test_blood2_tp12.txt"
 
 rule get_data_for_mixomics:
     input:
@@ -227,3 +229,20 @@ rule create_survival_curves:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
         "scripts/survival_analysis.R"
+        
+rule create_genesets_from_DIABLO_analysis:
+    input:
+        "results/diagnostics/full_model_all_samples_tp12.rds"
+    output:
+        "results/test_blood_tp12.txt",
+        "results/test_blood2_tp12.txt",
+        "results/top_rank_loadings_df_blood.csv",
+        "results/top_rank_loadings_df_tumour.csv",
+        "results/blood_responder.txt",
+        "results/blood_nonresponder.txt",
+        "results/tumour_responder.txt",
+        "results/tumour_nonresponder.txt"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/get_top_loadings_from_diablo_tp12.R"
