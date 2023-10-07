@@ -124,15 +124,17 @@ p0 <- ggplot(test0, aes(group_by, logFC, color=logFC_color), size = 0.1) +
 
 test0$timepoint = "Timepoint 0"
 
-options(repr.plot.width=25, repr.plot.height=10, repr.plot.quality = 200, repr.plot.res = 90)
-p0 | p1 | p2
+#options(repr.plot.width=25, repr.plot.height=10, repr.plot.quality = 200, repr.plot.res = 90)
+#p0 | p1 | p2
 
 total_df <- do.call("rbind", list(test0, test1, test2))
-
+total_df1 <- total_df
 #total_df$clusters <- total_df
-
-total_df1 <- total_df[total_df$group_by %in% c("CD8_TEM_1", "CD8_TEM_2", "CD8_TEM_3"),]
-total_df1$group_by <- factor(total_df1$group_by, levels = c("CD8_TEM_3", "CD8_TEM_2", "CD8_TEM_1"))
+#total_df1 <- total_df
+#total_df1 <- total_df[total_df$group_by %in% c("CD8_TEM_1", "CD8_TEM_2", "CD8_TEM_3"),]
+#total_df1$group_by <- factor(total_df1$group_by, levels = c("CD8_TEM_3", "CD8_TEM_2", "CD8_TEM_1"))
+#total_df1 <- total_df[total_df$group_by %in% c("CD8_TEM_1", "CD8_TEM_2", "CD8_TEM_3"),]
+total_df1$group_by <- factor(total_df1$group_by, levels = c("CD8_TEM_7", "CD8_TEM_6", "CD8_TEM_5", "CD8_TEM_4", "CD8_TEM_3", "CD8_TEM_2", "CD8_TEM_1"))
 total_df1$timepoint <- gsub("Timepoint ", "", total_df1$timepoint)
 
 pt <- ggplot(total_df1, aes(group_by, logFC, color=logFC_color), size = 0.1) +
@@ -150,3 +152,4 @@ pt <- ggplot(total_df1, aes(group_by, logFC, color=logFC_color), size = 0.1) +
 
 pt 
 ggsave("results/beewswarm.png", width = 7.06, height = 4.18, dpi = 600)
+ggsave("results/beewswarm.png", width = 7.79, height = 6, dpi = 600)# all_clusters
