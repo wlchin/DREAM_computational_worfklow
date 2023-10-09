@@ -2,8 +2,11 @@ import scanpy as sc
 import pandas as pd
 import anndata as ad
 import pickle
+import matplotlib.pyplot as plt
 
 ### this is the CD8 TEM in seurat 
+
+sc.set_figure_params(scanpy=True, dpi_save=400)
 
 adata = ad.read("data/dream.h5ad")
 adata.var.index = adata.var.gene
@@ -30,15 +33,23 @@ CD8TEM.obs['Mapped_Category'] = CD8TEM.obs["cluster_seurat"].map(label_mapping).
 #markers_express_tumour_responder = adata.var[smoller[0]].gene[adata.var[smoller[0]].gene.isin(tumour_responder)]
 
 markers_express_tumour_responder = pd.read_csv("results/tumour_markers_for_dotplot.txt", header = None)[0]
-markers_express_blood_responder = pd.read_csv("results/blood_markers_for_dotplot.txt", header = None)[0]
+markers_express_blood_responder = pd.read_csv("results/blood_markers_for_dotplot_R.txt", header = None)[0]
+markers_express_blood_nonresponder = pd.read_csv("results/blood_markers_for_dotplot_NR.txt", header = None)[0]
+
+print(markers_express_blood_responder)
+print(markers_express_blood_nonresponder)
+
+markers = {"top genes in R" : markers_express_blood_responder.to_list(),
+           "top genes in NR" : markers_express_blood_nonresponder.to_list()}
 
 
-sc.pl.dotplot(CD8TEM, markers_express_blood_responder, 
-              groupby='Mapped_Category', 
-              dendrogram=False,
-             standard_scale="var", swap_axes=True, save="CD8TEM_blood_markers.png")
+sc.pl.dotplot(CD8TEM, markers, 
+            groupby='Mapped_Category', 
+            dendrogram=False,
+            standard_scale="var", swap_axes=True, save="CD8TEM_blood_markers.png")
+
 
 sc.pl.dotplot(CD8TEM, markers_express_tumour_responder, 
-              groupby='Mapped_Category', 
-              dendrogram=False,
-             standard_scale="var", swap_axes=True, save="CD8TEM_tumour_markers.png")
+            groupby='Mapped_Category', 
+            dendrogram=False,
+            standard_scale="var", swap_axes=True, save="CD8TEM_tumour_markers.png")

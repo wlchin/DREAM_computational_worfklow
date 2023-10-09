@@ -48,15 +48,3 @@ celltypes_selected = ["CD14 Mono",
                "Treg"]
 
 df_expression.loc[celltypes_selected].to_csv("results/GSEA_DIABLO.csv")
-
-# get CD8 T cells and seurat clusters
-
-CD8_seurat_clusterlabels = pd.read_csv("data/CD8_seurat_clusters.csv")
-CD8_seurat_clusterlabels.columns = ["source", "seurat_cluster"]
-CD8_seurat_clusterlabels.index = CD8_seurat_clusterlabels.source
-#dc.run_ora(mat=CD8TEM, net=stuff, source='geneset', target='genesymbol', verbose=True, use_raw=False, min_n=20)
-
-totCD8 = pd.concat([CD8_seurat_clusterlabels, GSEA], axis = 1, join="inner")
-totCD8[["seurat_cluster", "DIABLO_tp1", "Timepoint"]]
-df_expression_CD8 = totCD8.groupby(["seurat_cluster", "Timepoint"]).mean().unstack().drop_duplicates().dropna()
-df_expression_CD8.to_csv("results/GSEA_DIABLO_CD8.csv")

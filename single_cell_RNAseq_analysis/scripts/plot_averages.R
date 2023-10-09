@@ -22,7 +22,7 @@ dev.off()
 mat2 <- read.csv("results/GSEA_DIABLO.csv")
 matgsea <- mat2[-c(1,2),-1]
 rownames(matgsea) <- mat2$source[-c(1,2)]
-colnames(matgsea) <- c("Timepoint0", "T1", "T2")
+colnames(matgsea) <- c("T0", "T1", "T2")
 
 a <- Heatmap(na.omit(matgsea), 
              row_names_gp = gpar(fontsize = 14), 
@@ -37,7 +37,7 @@ mat <- mat[3:5,]
 colnames(mat) <- c("T0", "T1", "T2")
 rownames(mat) <- c("CD8_TEM_0", "CD8_TEM_1", "CD8_TEM_2")
 
-a <- Heatmap(na.omit(mat), 
+a <- Heatmap(mat, 
              row_names_gp = gpar(fontsize = 14), 
              column_names_gp = gpar(fontsize = 14), 
              rect_gp = gpar(col = "black", lwd = 1), cluster_rows = F, cluster_columns = F, row_names_side = "left")
