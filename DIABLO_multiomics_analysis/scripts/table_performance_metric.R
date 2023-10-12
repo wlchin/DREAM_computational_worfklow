@@ -3,31 +3,10 @@ library(mixOmics)
 library(dplyr)
 
 p123 <- readRDS("results/diagnostics/full_model_all_samples_p123.rds")
-#auc_p123 <- perf(p123, auc = T, validation = "loo")
-
 tp123 <- readRDS("results/diagnostics/full_model_all_samples_tp123.rds")
-#auc_tp123 <- perf(tp123, auc = T, validation = "loo")
-
 tp12 <- readRDS("results/diagnostics/full_model_all_samples_tp12.rds")
-#auc_tp12 <- perf(tp12, auc = T, validation = "loo")
-
 tp1 <- readRDS("results/diagnostics/full_model_all_samples_tp1.rds")
-#auc_tp1 <- perf(tp1, auc = T)
-
 tonly <- readRDS("results/diagnostics/full_model_all_samples_t.rds")
-#auc_t <- perf(tonly, auc = T, validation = "loo")
-
-#tp2 <- readRDS("results/diagnostics/full_model_all_samples_tp2.rds")
-#auc_t <- perf(tonly, auc = T, validation = "loo")
-
-#tp3 <- readRDS("results/diagnostics/full_model_all_samples_tp3.rds")
-#auc_t <- perf(tonly, auc = T, validation = "loo")
-
-#perf.tp2 = perf(tp2, validation = 'loo', auc = T) 
-#perf.tp2$AveragedPredict.error.rate
-
-#perf.tp3 = perf(tp3, validation = 'loo', auc = T) 
-#perf.tp3$AveragedPredict.error.rate
 
 perf.t = perf(tonly, validation = 'loo', auc = T) 
 perf.t$error.rate$BER
@@ -45,7 +24,7 @@ perf.p123 = perf(p123, validation = "loo", auc = T)
 perf.p123$AveragedPredict.error.rate
 
 
-extract_stuff <- function(perfobj, desc){
+extract_metrics <- function(perfobj, desc){
   x <- data.frame(
     Combination <- desc,
     Overall_BER = min(perfobj$AveragedPredict.error.rate["Overall.BER",]),
@@ -57,7 +36,7 @@ extract_stuff <- function(perfobj, desc){
   x
 }
 
-extract_stuff_tumour <- function(perfobj, desc){
+extract_metrics_tumour <- function(perfobj, desc){
   x <- data.frame(
     Combination <- desc,
     Overall_BER = mean(perfobj$error.rate$BER),
@@ -70,20 +49,18 @@ extract_stuff_tumour <- function(perfobj, desc){
 }
 
 list_res <- list()
-list_res[[1]] <- extract_stuff(perf.tp1, "Tumour + 0")
-list_res[[2]] <- extract_stuff(perf.tp12, "Tumour + 0 + 1")
-list_res[[3]] <- extract_stuff(perf.tp123, "Tumour + 0 + 1 + 2")
-list_res[[4]] <- extract_stuff(perf.p123, "0 + 1 + 2")
-list_res[[5]] <- extract_stuff_tumour(perf.t, "Tumour only")
-#list_res[[6]] <- extract_stuff(perf.tp2, "Tumour + Tpt2")
-#list_res[[7]] <- extract_stuff(perf.tp3, "Tumour + Tpt3")
+list_res[[1]] <- extract_metrics(perf.tp1, "Tumour + 0")
+list_res[[2]] <- extract_metrics(perf.tp12, "Tumour + 0 + 1")
+list_res[[3]] <- extract_metrics(perf.tp123, "Tumour + 0 + 1 + 2")
+list_res[[4]] <- extract_metrics(perf.p123, "0 + 1 + 2")
+list_res[[5]] <- extract_metrics_tumour(perf.t, "Tumour only")
 
 tabs <- do.call(rbind, list_res)
 rownames(tabs) <- tabs$Combination....desc
 tabs1 <- round(tabs[,-1], 3)
 tabs1$Combinations <- tabs$Combination....desc
 tabs1 <- tabs1[,c("Combinations", "AUC", "p.value", "R_BER", "NR_BER", "Overall_BER")]
-#tabs1 <- arrange(tabs1, desc(Overall_BER), AUC)
+
 
 tabs1 <- tabs1[c(5, 4, 1, 2, 3),]
 

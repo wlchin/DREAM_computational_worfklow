@@ -50,7 +50,7 @@ Heatmap(mat, name = "Correlation",
         show_column_names = F, show_row_names = F, show_column_dend = T, show_row_dend = T)
 dev.off()
 
-png("results/blood_tree.png", width = 5, height = 5, units = "in", res = 600)
+png("results/blood_tree.png", width = 5, height = 7.5, units = "in", res = 600)
 plotLoadings(final.diablo.model, 
              block = "blood", 
              comp = 1, contrib = 'max', 
@@ -58,7 +58,7 @@ plotLoadings(final.diablo.model,
              title = "", legend.color = c("red", "blue"), legend.title = "Repsonse")
 dev.off()
 
-png("results/tumour_tree.png", width = 5, height = 5, units = "in", res = 600)
+png("results/tumour_tree.png", width = 5, height = 7.5, units = "in", res = 600)
 plotLoadings(final.diablo.model, 
              block = "tumour", ndisplay = 50,
              comp = 1, 

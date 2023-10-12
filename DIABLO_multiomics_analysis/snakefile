@@ -93,7 +93,7 @@ rule run_diablo_tp123:
     script:
         "scripts/mixomics_run_all_peripheral_and_tumour.R"
 
-rule plot_cim_and_features:
+rule plot_cim:
     input:
         "data/phenodata_all.csv",
         "results/diagnostics/full_model_all_samples_tp1.rds",
@@ -101,12 +101,21 @@ rule plot_cim_and_features:
         "results/test_blood.txt",
         "results/test_tumour.txt",
         "results/heatmap.png", 
-        "results/blood_tree.png", 
-        "results/tumour_tree.png" 
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
         "scripts/plot_cim.R"
+
+rule plot_loadings:
+    input:
+        "results/diagnostics/full_model_all_samples_tp12.rds",
+    output:
+        "results/blood_tree.png",
+        "results/tumour_tree.png"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/plot_loadings.R"
 
 rule do_cluster_profiler:
     input:
