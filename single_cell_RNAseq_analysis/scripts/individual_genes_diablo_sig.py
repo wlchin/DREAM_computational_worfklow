@@ -6,8 +6,8 @@ adata = ad.read("data/dream.h5ad")
 
 adata.var.index = adata.var.gene
 
-genesig = pd.read_csv("data/test_blood_tp12.txt", header = None)
-genesig2 = pd.read_csv("data/test_blood2_tp12.txt", header = None)
+genesig = pd.read_csv("data/blood_responder_sampled_50genes.txt", header = None)
+genesig2 = pd.read_csv("data/blood_nonresponder_sampled_50genes.txt", header = None)
 
 genesig["geneset"] = "DIABLO_tp1"
 genesig2["geneset"] = "DIABLO_tp1"

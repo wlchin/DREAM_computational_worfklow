@@ -5,9 +5,9 @@ x <- read.csv("results/zscaled_proprotions.csv")
 mat <- x[,-1]
 rownames(mat) <- x$X
 
-mat1 <- mat[1:3, 1:38]
+mat1 <- mat[1:3, 1:39]
 
-split = factor(c(rep("Immune checkpoints", 7), rep("Effector", 7), rep("Exhaustion", 10), rep("Stem-like", 8), rep("KLR", 6)), levels=c("Effector", "Immune checkpoints", "Exhaustion", "Stem-like", "KLR"))
+split = factor(c(rep("Immune checkpoints", 7), rep("Effector", 8), rep("Exhaustion", 9), rep("Stem-like", 9), rep("KLR", 6)), levels=c("Effector", "Immune checkpoints", "Exhaustion", "Stem-like", "KLR"))
 
 #split = c(rep("Exhaustion", 5), rep("Naive-like", 4), rep("Effector", 6), rep("Prog-Ex", 5), rep("Term-Ex", 8), )
 #split = c(rep("Exhaustion", 5), rep("Naive-like", 4))

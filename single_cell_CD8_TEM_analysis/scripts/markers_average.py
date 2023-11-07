@@ -42,10 +42,10 @@ for clust in adata.obs.seurat_clusters.cat.categories:
 #             "CD69", "PTPRC", "TBR1"]] # terminally exhausted
 
 df = res[["PDCD1", "HAVCR2", "LAG3", "TIGIT", "TNFRSF9", "TNFRSF18", "ENTPD1", # immune checkpoint
-              "PRF1", "GZMA", "GZMB", "GZMK", "GNLY", "FAS", "ITGAE", #effector
-              "CCL3", "CX3CR1", "CXCL13", "CXCR6", "KLRG1", "ID2", "ZEB2", "EOMES", "PRDM1", "TOX", # exhaustion
-              "TCF7", "MYB", "SLAMF6", "IL7R", "CCR7", "LEF1", "SELL", "BATF", # stem like
-             "KLRC3", "KLRC1", "KLRC2", "KIR3DL1", "KIR3DL3", "NCR1"]] # KLR
+              "PRF1", "GZMA", "GZMB", "GZMK", "GNLY", "FAS", "ITGAE", "CD69", #effector
+              "CCL3", "CX3CR1", "CXCL13", "CXCR6", "KLRG1", "ZEB2", "EOMES", "CCR6", "TOX", # exhaustion
+              "TCF7", "MYB", "SLAMF6", "IL7R", "CCR7", "LEF1", "SELL", "BATF", "CXCR5", # stem like
+             "KLRC1", "KLRC2", "KLRC3", "KIR3DL1", "KIR3DL3", "NCR1"]] # KLR
 
 # CCL3, CX3CR1, CXCL13,CXCR6, KLRG1, ID2, ZEB2, EOMES, PRDM1, TOX. 
 
