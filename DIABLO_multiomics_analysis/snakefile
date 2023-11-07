@@ -1,6 +1,7 @@
 
 suffix = ["t","tp1", "p123", "tp12", "tp123"]
 timepoints = ["Timepoint1", "Timepoint2", "Timepoint0"]
+suffix_all = ["p1", "p2", "p3", "tp2", "tp3", "tp23"]
 
 rule all:
     input:
@@ -10,11 +11,10 @@ rule all:
         "results/performance_table.html", # Figure 4D
         "results/barplots_blood.png", # Figure 4E
         "results/barplots_tumour.png", # Figure 4F
+        "data/tp12_sampled.rds",
         "results/PFS_surv_pace_Timepoint1.png", # Figure 4G
         "results/OS_surv_pace_Timepoint1.png", # Figure 4H
         "results/stem_enrichment_table.html", # Figure S4 table
-        "results/test_blood_tp12.txt",
-        "results/test_blood2_tp12.txt"
 
 rule get_data_for_mixomics:
     input:
@@ -96,15 +96,16 @@ rule run_diablo_tp123:
 rule plot_cim:
     input:
         "data/phenodata_all.csv",
-        "results/diagnostics/full_model_all_samples_tp1.rds",
+        "results/diagnostics/full_model_all_samples_tp12.rds",
     output:
         "results/test_blood.txt",
+        "results/test_blood2.txt",
         "results/test_tumour.txt",
         "results/heatmap.png", 
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
-        "scripts/plot_cim.R"
+        "scripts/heatmap_cim_tp12.R"
 
 rule plot_loadings:
     input:
@@ -117,35 +118,10 @@ rule plot_loadings:
     script:
         "scripts/plot_loadings.R"
 
-rule do_cluster_profiler:
-    input:
-        "results/test_blood.txt",
-        "results/test_tumour.txt",
-        "data/peripheralbloodfiltered_PLS.csv",
-        "data/tumour_PLS.csv",
-    output:
-        "results/tumour.rds",
-        "results/blood.rds"
-    singularity:
-        "docker://wlc27/dream_computational_workflow_r_container:v1"
-    script:
-        "scripts/do_clusterprofiler_on_genes.R"
-        
-rule do_cluster_profiler_plots:
-    input:
-        "results/tumour.rds",
-        "results/blood.rds"
-    output:
-        "results/barplots_blood.png", # Figure 4E
-        "results/barplots_tumour.png" # Figure 4F
-    singularity:
-        "docker://wlc27/dream_computational_workflow_r_container:v1"
-    script:
-        "scripts/enrichment_barplots.R"
-
 rule performance_metrics_calculcate_and_tabulate: 
     input:
-        expand("results/diagnostics/full_model_all_samples_{mode}.rds", mode = suffix)
+        expand("results/diagnostics/full_model_all_samples_{mode}.rds", mode = suffix),
+        expand("results/{mode}.rds", mode = suffix_all)
     output:
         "results/performance_table.html" # Figure 4D
     singularity:
@@ -238,20 +214,102 @@ rule create_survival_curves:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
         "scripts/survival_analysis.R"
-        
-rule create_genesets_from_DIABLO_analysis:
+
+#### train split of data
+
+rule train_split_data:
     input:
-        "results/diagnostics/full_model_all_samples_tp12.rds"
+        "data/phenodata_PLS.csv",
+        "data/tumour_PLS.csv",
+        "data/peripheralbloodfiltered_PLS.csv",
+        "data/peripheralbloodC2D1filtered_PLS.csv"
     output:
-        "results/test_blood_tp12.txt",
-        "results/test_blood2_tp12.txt",
-        "results/top_rank_loadings_df_blood.csv",
-        "results/top_rank_loadings_df_tumour.csv",
-        "results/blood_responder.txt",
-        "results/blood_nonresponder.txt",
-        "results/tumour_responder.txt",
-        "results/tumour_nonresponder.txt"
+        "data/tp12_sampled.rds"
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
-        "scripts/get_top_loadings_from_diablo_tp12.R"
+        "scripts/run_analysis.R"
+
+rule get_feature_importances_from_train_test_split:
+    input:
+        "data/tp12_sampled.rds"
+    output:
+        "data/tp12_sampled.rds"
+        "results/blood_responder_sampled_25genes.txt",
+        "results/blood_nonresponder_sampled_25genes.txt",
+        "results/blood_responder_sampled_50genes.txt",
+        "results/blood_nonresponder_sampled_50genes.txt",
+        "results/blood_responder_sampled_100genes.txt",
+        "results/blood_nonresponder_sampled_100genes.txt",
+        "results/tumour_responder_sampled_50genes.txt",
+        "results/tumour_nonresponder_sampled_50genes.txt"
+        "results/combined_weights.csv",
+        "results/tumour_weights.csv"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/get_average_weights.R"
+
+rule plot_feature_selection:
+    input:
+        "results/combined_weights.csv"
+    output:
+        "results/feature_plot_with_dashes.png", # zero features removed
+        "results/gene_blood_background_new_seed.txt"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/plot_feature_importances_all_on_barchart.R"
+        
+rule enrichment_on_training_sets:
+    input:
+        "results/gene_blood_background_new_seed.txt",
+        "results/blood_responder_sampled_50genes.txt"
+    output:
+        "results/blood_samp.rds"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/clusterprofiler_on_different_gene_set_sizes.R"
+        
+rule barplot_on_enrichment_results_for_training_sets:
+    input:
+        "results/blood_samp.rds"
+    output:
+        "results/barplots_blood_samp.png"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/enrichment_barplots_training_set.R"
+        
+rule test_set_training_metrics_single_assay:
+    input:
+        "data/phenodata_PLS.csv",
+        "data/peripheralbloodfiltered_PLS.csv",
+        "data/peripheralbloodC2D1filtered_PLS.csv",
+        "data/peripheralbloodC3D1filtered_PLS.csv",
+    output:
+        "results/p1.rds",
+        "results/p2.rds",
+        "results/p3.rds",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/calculate_single_assay_models.R"
+
+rule test_set_training_metrics_multi_assay:
+    input:
+        "data/phenodata_PLS.csv",
+        "data/peripheralbloodfiltered_PLS.csv",
+        "data/peripheralbloodC2D1filtered_PLS.csv",
+        "data/peripheralbloodC3D1filtered_PLS.csv",
+    output:
+        "results/p12.rds",
+        "results/p23.rds",
+        "results/p13.rds",
+        "results/tp13.rds",
+        "results/tp23.rds",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_r_container:v1"
+    script:
+        "scripts/calculate_multi_assay_models.R"

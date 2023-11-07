@@ -58,13 +58,16 @@ rule all:
         "results/summarised_composition.png", # Figure S2G
         "results/ifn_gamma_response.png", # Figure S2H
         "results/diablo_sig_individual_genes.png", #Figure S4A
-        "results/diablo_GSEA.png", #Fig 4?,
-        "results/diablo_sig_CD8_TEM.png",
-        "figures/dotplot_tumour_markers.png", #Fig S4?
-        "figures/dotplot_blood_markers.png", #Fig S4?
-        "figures/dotplot_CD8TEM_tumour_markers.png", #Fig S4?
-        "figures/dotplot_CD8TEM_blood_markers.png", #Fig S4?
-        'results/barplot_feature_importance.png' # Figure S4?
+        "results/diablo_sig_CD8_TEM_25.png",
+        "results/diablo_sig_CD8_TEM_50.png",
+        "results/diablo_sig_CD8_TEM_100.png",
+        "results/diablo_sig_25.png",
+        "results/diablo_sig_50.png",
+        "results/diablo_sig_100.png",
+        "figures/dotplot_blood_markers_factor_loadings.png",
+        "results/barplot_feature_importance.png",
+        "figures/dotplot_tumour_genes_50.png",
+        "figures/dotplot_CD8TEM_blood_markers.png"
 
 rule clustering_and_preprocessing:
     input:
@@ -268,35 +271,30 @@ rule get_DA_cell_counts_per_celltype_grouped_by_response:
 
 # plot averages script - for summarising python decouplr
 
-rule GSEA_diablo_allcells:
+rule GSEA_diablo:
     input:
         "data/dream.h5ad",
-        "data/test_blood_tp12.txt",
-        "data/test_blood2_tp12.txt"
-    output:
-        "results/GSEA_DIABLO.csv"
-    singularity:
-        "docker://wlc27/dream_computational_workflow_python_container:v1"
-    script:
-        "scripts/GSEA_diablo.py"
-
-rule GSEA_diablo_CD8_TEM:
-    input:
-        "data/dream.h5ad",
-        "data/blood_responder.txt",
+        "data/blood_responder_sampled_25genes.txt",
+        "data/blood_responder_sampled_50genes.txt",
+        "data/blood_responder_sampled_100genes.txt",
         "data/CD8_seurat_clusters.csv"
     output:
-        "results/GSEA_DIABLO_CD8.csv"
+        "results/GSEA_DIABLO_25_genes.csv",
+        "results/GSEA_DIABLO_50_genes.csv",
+        "results/GSEA_DIABLO_100_genes.csv",
+        "results/GSEA_DIABLO_CD8_25_genes.csv",
+        "results/GSEA_DIABLO_CD8_50_genes.csv",
+        "results/GSEA_DIABLO_CD8_100_genes.csv"
     singularity:
         "docker://wlc27/dream_computational_workflow_python_container:v1"
     script:
-        "scripts/GSEA_diablo_CD8_TEM.py"
+        "scripts/run_enrichment_on_diablo.py"
 
 rule average_expression_diablo:
     input:
         "data/dream.h5ad",
-        "data/test_blood_tp12.txt",
-        "data/test_blood2_tp12.txt"
+        "data/blood_responder_sampled_50genes.txt",
+        "data/blood_nonresponder_sampled_50genes.txt"
     output:
         "results/average_expression_individual_genes_DIABLO.csv"
     singularity:
@@ -306,59 +304,63 @@ rule average_expression_diablo:
         
 rule plot_diablo_signature:
     input:
-        "results/GSEA_DIABLO.csv",
-        "results/GSEA_DIABLO_CD8.csv",
+        "results/GSEA_DIABLO_25_genes.csv",
+        "results/GSEA_DIABLO_50_genes.csv",
+        "results/GSEA_DIABLO_100_genes.csv",
+        "results/GSEA_DIABLO_CD8_25_genes.csv",
+        "results/GSEA_DIABLO_CD8_50_genes.csv",
+        "results/GSEA_DIABLO_CD8_100_genes.csv",
         "results/average_expression_individual_genes_DIABLO.csv"
     output:
         "results/diablo_sig_individual_genes.png",
-        "results/diablo_sig_CD8_TEM.png",
-        "results/diablo_GSEA.png"
+        "results/diablo_sig_CD8_TEM_25.png",
+        "results/diablo_sig_CD8_TEM_50.png",
+        "results/diablo_sig_CD8_TEM_100.png",
+        "results/diablo_sig_25.png",
+        "results/diablo_sig_50.png",
+        "results/diablo_sig_100.png",
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
         "scripts/plot_averages.R"
         
-rule plot_diablo_signature_dotplot_all_cells:
-    input:
-        "data/dream.h5ad",
-        "data/blood_responder.txt",
-        "data/blood_nonresponder.txt",
-        "data/tumour_responder.txt",
-        "data/tumour_nonresponder.txt"
-    output:
-        "figures/dotplot_tumour_markers.png",
-        "figures/dotplot_blood_markers.png",
-        "results/blood_markers_for_dotplot_R.txt",
-        "results/blood_markers_for_dotplot_NR.txt",
-        "results/tumour_markers_for_dotplot.txt"
-    singularity:
-        "docker://wlc27/dream_computational_workflow_python_container:v1"
-    script:
-        "scripts/dotplot_all_cells.py"
-        
-rule plot_diablo_signature_dotplot_CD8_TEM:
-    input:
-        "data/dream.h5ad",
-        "data/CD8_seurat_clusters.csv",
-        "results/blood_markers_for_dotplot_R.txt",
-        "results/blood_markers_for_dotplot_NR.txt",
-        "results/tumour_markers_for_dotplot.txt"
-    output:
-        "figures/dotplot_CD8TEM_tumour_markers.png",
-        "figures/dotplot_CD8TEM_blood_markers.png"
-    singularity:
-        "docker://wlc27/dream_computational_workflow_python_container:v1"
-    script:
-        "scripts/dotplot_CD8_TEM.py"
-
 rule plot_feature_importance_diablo_genes:
     input:
-        "data/top_rank_loadings_df_blood.csv",
-        "results/blood_markers_for_dotplot_R.txt",
-        "results/blood_markers_for_dotplot_NR.txt"
+        "data/dream.h5ad",
+        "data/top_rank_loadings_df_blood.csv"
+        "data/blood_responder_sampled_25genes.txt",
+        "data/blood_nonresponder_sampled_25genes.txt"
     output:
-        'results/barplot_feature_importance.png'
+        "figures/dotplot_blood_markers_factor_loadings.png",
+        "results/barplot_feature_importance.png"
     singularity:
         "docker://wlc27/dream_computational_workflow_python_container:v1"
     script:
         "scripts/plot_barchart_feature_importance.py"
+        
+rule dotplots_common_celltypes:
+    input:
+        "data/dream.h5ad",
+        "data/blood_responder_sampled_25genes.txt", 
+        "data/blood_responder_sampled_50genes.txt",
+        "data/blood_responder_sampled_100genes.txt",
+    output:
+        "figures/dotplot_blood_markers_factor_loadings_25_genes.png",
+        "figures/dotplot_blood_markers_factor_loadings_50_genes.png",
+        "figures/dotplot_blood_markers_factor_loadings_100_genes.png",
+        "figures/dotplot_CD8TEM_blood_markers.png"
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/dotplot_gene_signatures_blood.py"
+        
+rule dotplots_common_celltypes_tumour_signature:
+    input:
+        "data/dream.h5ad",
+        "data/tumour_responder_sampled_50genes.txt",
+    output:
+        "figures/dotplot_tumour_genes_50.png",
+    singularity:
+        "docker://wlc27/dream_computational_workflow_python_container:v1"
+    script:
+        "scripts/dotplot_gene_signatures_tumour.py"
