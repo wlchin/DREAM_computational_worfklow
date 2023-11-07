@@ -56,16 +56,5 @@ saveRDS(ncomp, snakemake@output[[2]])
 saveRDS(list.keepX, snakemake@output[[3]])
 
 
-pdf("results/diagnostics/sample_plots.pdf")
-plotIndiv(final.diablo.model, ind.names = FALSE, legend = TRUE, 
-          title = 'DIABLO Sample Plots', elipse = True)
-dev.off()
 
-pdf("results/diagnostics/loadings_plot.pdf")
-plotLoadings(final.diablo.model, comp = 1, contrib = 'max', method = 'median')
-dev.off()
-
-pdf("results/diagnostics/correlation_plot.pdf")
-p <- cimDiablo(final.diablo.model, comp = 1)
-dev.off()
 
