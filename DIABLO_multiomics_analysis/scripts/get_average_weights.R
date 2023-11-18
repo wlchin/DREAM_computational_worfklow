@@ -67,9 +67,9 @@ write(unique(head(dftotal, 50)$features), "results/blood_nonresponder_sampled_50
 write(unique(tail(dftotal, 100)$features), "results/blood_responder_sampled_100genes.txt")
 write(unique(head(dftotal, 100)$features), "results/blood_nonresponder_sampled_100genes.txt")
 
-write.csv(df, "results/combined_weights.csv")
+write.csv(dftotal, "results/combined_weights.csv")
 
-write(unique(df$features), "results/gene_blood_background_new_seed.txt")
+write(unique(dftotal$features), "results/gene_blood_background_new_seed.txt")
 
 topdf <- rbind(head(dftotal, 100), tail(dftotal, 100))
 write.csv(topdf, "results/top_rank_loadings_df_blood.csv")

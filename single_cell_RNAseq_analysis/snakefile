@@ -328,8 +328,8 @@ rule plot_feature_importance_diablo_genes:
     input:
         "data/dream.h5ad",
         "data/top_rank_loadings_df_blood.csv"
-        "data/blood_responder_sampled_25genes.txt",
-        "data/blood_nonresponder_sampled_25genes.txt"
+        "data/blood_responder_sampled_50genes.txt",
+        "data/blood_nonresponder_sampled_50genes.txt"
     output:
         "figures/dotplot_blood_markers_factor_loadings.png",
         "results/barplot_feature_importance.png"

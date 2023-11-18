@@ -72,7 +72,7 @@ training_loop_single_ <- function(input_assay, pheno_vec){
                                    folds = 5, nrepeat = 10, # use repeated cross-validation
                                    dist = 'max.dist', # use max.dist measure
                                    measure = "BER", # use balanced error rate of dist measure
-                                   test.keepX = list.keepX, cpus = 12, progressBar = F) # allow for paralleliation to decrease runtime
+                                   test.keepX = list.keepX, cpus = 1, progressBar = F) # allow for paralleliation to decrease runtime
   optimal.ncomp <- tune.splsda.srbct$choice.ncomp$ncomp
   optimal.keepX <- tune.splsda.srbct$choice.keepX[1:optimal.ncomp]
   final.splsda <- splsda(X2, Y, 
@@ -149,7 +149,7 @@ training_loop_single_multiblock <- function(input_assay, pheno_vec){
   tune.TCGA = tune.block.splsda(X = X, Y = Y, ncomp = ncomp, 
                                 test.keepX = test.keepX, design = design, max.iter = 200,
                                 validation = 'Mfold', folds = 5, nrepeat = 10,
-                                dist = "max.dist", BPPARAM = MulticoreParam(workers = 14))
+                                dist = "max.dist", BPPARAM = MulticoreParam(workers = 1))
   
   list.keepX = tune.TCGA$choice.keepX # set the optimal values of features to retain
   
@@ -171,6 +171,7 @@ calculate_average_BER_multiblock <- function(number_reps, assay, phenovec, names
       # Add error handling using tryCatch
       tryCatch({
         res_BER <- run_whole_test_train_workflow_multiblock(assay, names_of_assays, phenovec, filename_save)
+        print(paste0("Successful repetition :", i))
         BER_vec[[i]] <- res_BER
         #setTxtProgressBar(pb, i)
         if (i %% 5 == 0) {
@@ -180,13 +181,13 @@ calculate_average_BER_multiblock <- function(number_reps, assay, phenovec, names
         }
       }, error = function(e) {
         # Handle the error
-        cat("Error occurred on repetition ", i, ": ", conditionMessage(e), "\n")
+        print(paste0("Error occurred on repetition ", i, ": ", conditionMessage(e), "\n"))
         seed_offset <- seed_offset + 1  # Increment the offset for the next seed
       })
       
       if (is.null(BER_vec[[i]])) {
         # The result is still missing; continue with a different seed
-        cat("Retrying repetition ", i, " with a different seed.\n")
+        print(paste0("Retrying repetition ", i, " with a different seed.\n"))
       } else {
         # Break out of the repeat loop when a valid result is obtained
         break
@@ -195,7 +196,7 @@ calculate_average_BER_multiblock <- function(number_reps, assay, phenovec, names
   }
   end_time <- Sys.time()
   elapsed_time <- end_time - start_time
-  cat("Elapsed time: ", elapsed_time[1], " seconds\n")
+  print(paste0("Elapsed time: ", elapsed_time[1], " seconds\n"))
   BER_vec
 }
 

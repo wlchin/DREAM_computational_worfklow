@@ -6,19 +6,21 @@ suffix_all = ["p1", "p2", "p3", "tp2", "tp3", "tp23"]
 rule all:
     input:
         "results/heatmap.png", # Figure 4A
-        "results/blood_tree.png", # Figure 4B
-        "results/tumour_tree.png", # Figure 4C
+        #"results/blood_tree.png", # Figure 4B
+        #"results/tumour_tree.png", # Figure 4C
         "results/performance_table.html", # Figure 4D
-        "results/barplots_blood.png", # Figure 4E
-        "results/barplots_tumour.png", # Figure 4F
+        #"results/barplots_blood.png", # Figure 4E
+        #"results/barplots_tumour.png", # Figure 4F
+        "results/feature_plot_with_dashes_blood.png",
         "data/tp12_sampled.rds",
-        "results/PFS_surv_pace_Timepoint1.png", # Figure 4G
-        "results/OS_surv_pace_Timepoint1.png", # Figure 4H
-        "results/stem_enrichment_table.html", # Figure S4 table
+        "results/barplots_blood_samp50.png"
+        #"results/PFS_surv_pace_Timepoint1.png", # Figure 4G
+        #"results/OS_surv_pace_Timepoint1.png", # Figure 4H
+        #"results/stem_enrichment_table.html", # Figure S4 table
 
 rule get_data_for_mixomics:
     input:
-        "data/nanostring.csv",
+        "data/nanostring_new_corrected.csv",
         "data/phenodata.csv",
         "data/tpm_matrix.csv"
     output:
@@ -234,7 +236,6 @@ rule get_feature_importances_from_train_test_split:
     input:
         "data/tp12_sampled.rds"
     output:
-        "data/tp12_sampled.rds"
         "results/blood_responder_sampled_25genes.txt",
         "results/blood_nonresponder_sampled_25genes.txt",
         "results/blood_responder_sampled_50genes.txt",
@@ -242,9 +243,11 @@ rule get_feature_importances_from_train_test_split:
         "results/blood_responder_sampled_100genes.txt",
         "results/blood_nonresponder_sampled_100genes.txt",
         "results/tumour_responder_sampled_50genes.txt",
-        "results/tumour_nonresponder_sampled_50genes.txt"
+        "results/tumour_nonresponder_sampled_50genes.txt",
         "results/combined_weights.csv",
-        "results/tumour_weights.csv"
+        "results/tumour_weights.csv",
+        "results/gene_blood_background_new_seed.txt",
+        "results/gene_tumour_background_new_seed.txt"
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
@@ -252,10 +255,11 @@ rule get_feature_importances_from_train_test_split:
 
 rule plot_feature_selection:
     input:
-        "results/combined_weights.csv"
+        "results/combined_weights.csv",
+        "results/tumour_weights.csv"
     output:
-        "results/feature_plot_with_dashes.png", # zero features removed
-        "results/gene_blood_background_new_seed.txt"
+        "results/feature_plot_with_dashes_blood.png",
+        "results/feature_plot_with_dashes_tumour.png" # zero features removed
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
@@ -266,7 +270,7 @@ rule enrichment_on_training_sets:
         "results/gene_blood_background_new_seed.txt",
         "results/blood_responder_sampled_50genes.txt"
     output:
-        "results/blood_samp.rds"
+        "results/blood_50_genes.rds"
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
@@ -274,9 +278,9 @@ rule enrichment_on_training_sets:
         
 rule barplot_on_enrichment_results_for_training_sets:
     input:
-        "results/blood_samp.rds"
+        "results/blood_50_genes.rds"
     output:
-        "results/barplots_blood_samp.png"
+        "results/barplots_blood_samp50.png"
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
