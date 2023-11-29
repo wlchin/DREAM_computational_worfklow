@@ -37,7 +37,11 @@ phenotype <- pheno[!duplicated(pheno),] %>% arrange(Patient)
 phenotype$PFS_6M[phenotype$PFS_6M == 0] <- "Non-responder" 
 phenotype$PFS_6M[phenotype$PFS_6M == 1] <- "Responder"
 
-ha <- HeatmapAnnotation(Phenotype = phenotype$PFS_6M)
+phenotype$PFS_6M <- as.factor(phenotype$PFS_6M)
+
+ha <- HeatmapAnnotation(Phenotype = phenotype$PFS_6M, col = list(Phenotype = c("Responder" = "red", "Non-responder" = "blue")))
+
+#, col = list(Response = c("Responder" = "Red", "Non-Responder" = "Blue")
 
 ht <- Heatmap(mat, top_annotation = ha, cluster_rows = F, cluster_columns = F, name = "Cell \ncounts", cell_fun = function(j, i, x, y, width, height, fill){
   grid.text(mat[i, j], x, y, gp = gpar(fontsize = 5))}, 

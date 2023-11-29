@@ -44,20 +44,20 @@ timepoint = [0,1,2]
 
 rule all:
     input:
-        'results/by_celltype.png', # Figure 2A
-        'results/by_timepoint.png', # Figure 2B
-        'results/by_pfs.png', # Figure 2C    
-        "results/barplot.png", # Figure 2D
-        "results/beeswarm.png", # Figure 2E
-        "figures/dotplot_Bcell.png", # Figure S2A
-        "figures/dotplot_CD8.png", # Figure S2B
-        "figures/dotplot_CD4.png", # Figure S2C
-        "figures/dotplot_NK.png", # Figure S2D
-        "figures/dotplot_Mono.png", # Figure S2E
-        "results/individual_barplots_per_timepoint.png", # Figure S2F
-        "results/summarised_composition.png", # Figure S2G
-        "results/ifn_gamma_response.png", # Figure S2H
-        "results/diablo_sig_individual_genes.png", #Figure S4A
+        #'results/by_celltype.png', # Figure 2A
+        #'results/by_timepoint.png', # Figure 2B
+        #'results/by_pfs.png', # Figure 2C    
+        #"results/barplot.png", # Figure 2D
+        #"results/beeswarm.png", # Figure 2E
+        #"figures/dotplot_Bcell.png", # Figure S2A
+        #"figures/dotplot_CD8.png", # Figure S2B
+        #"figures/dotplot_CD4.png", # Figure S2C
+        #"figures/dotplot_NK.png", # Figure S2D
+        #"figures/dotplot_Mono.png", # Figure S2E
+        #"results/individual_barplots_per_timepoint.png", # Figure S2F
+        #"results/summarised_composition.png", # Figure S2G
+        #"results/ifn_gamma_response.png", # Figure S2H
+        #"results/diablo_sig_individual_genes.png", #Figure S4A
         "results/diablo_sig_CD8_TEM_25.png",
         "results/diablo_sig_CD8_TEM_50.png",
         "results/diablo_sig_CD8_TEM_100.png",
@@ -327,9 +327,9 @@ rule plot_diablo_signature:
 rule plot_feature_importance_diablo_genes:
     input:
         "data/dream.h5ad",
-        "data/top_rank_loadings_df_blood.csv"
-        "data/blood_responder_sampled_50genes.txt",
-        "data/blood_nonresponder_sampled_50genes.txt"
+        "data/top_rank_loadings_df_blood.csv",
+        "data/blood_responder_sampled_25genes.txt",
+        "data/blood_nonresponder_sampled_25genes.txt"
     output:
         "figures/dotplot_blood_markers_factor_loadings.png",
         "results/barplot_feature_importance.png"

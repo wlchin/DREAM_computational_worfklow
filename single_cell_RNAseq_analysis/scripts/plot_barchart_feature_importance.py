@@ -5,7 +5,7 @@ import scanpy as sc
 import pandas as pd
 import anndata as ad
 
-sc.set_figure_params(scanpy=True, dpi_save=400)
+sc.set_figure_params(scanpy=True, dpi_save=400, figsize = (3, 8))
 
 adata = ad.read("data/dream.h5ad")
 adata.var.index = adata.var.gene

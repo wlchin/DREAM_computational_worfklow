@@ -6,17 +6,18 @@ suffix_all = ["p1", "p2", "p3", "tp2", "tp3", "tp23"]
 rule all:
     input:
         "results/heatmap.png", # Figure 4A
-        #"results/blood_tree.png", # Figure 4B
-        #"results/tumour_tree.png", # Figure 4C
-        "results/performance_table.html", # Figure 4D
-        #"results/barplots_blood.png", # Figure 4E
-        #"results/barplots_tumour.png", # Figure 4F
+        "results/performance_table.html", # Figure S4A
+        "results/barplots_blood_samp25.png",
+        "results/barplots_blood_samp50.png",
+        "results/barplots_blood_samp100.png",
+        "results/barplots_tumour_samp25.png",
+        "results/barplots_tumour_samp50.png",
+        "results/barplots_tumour_samp100.png"
         "results/feature_plot_with_dashes_blood.png",
         "data/tp12_sampled.rds",
-        "results/barplots_blood_samp50.png"
-        #"results/PFS_surv_pace_Timepoint1.png", # Figure 4G
-        #"results/OS_surv_pace_Timepoint1.png", # Figure 4H
-        #"results/stem_enrichment_table.html", # Figure S4 table
+        "results/PFS_surv_pace_Timepoint1.png", # Figure 4G
+        "results/OS_surv_pace_Timepoint1.png", # Figure 4H
+        "results/stem_enrichment_table.html", # Table 1
 
 rule get_data_for_mixomics:
     input:
@@ -259,7 +260,7 @@ rule plot_feature_selection:
         "results/tumour_weights.csv"
     output:
         "results/feature_plot_with_dashes_blood.png",
-        "results/feature_plot_with_dashes_tumour.png" # zero features removed
+        "results/feature_plot_with_dashes_tumour.png" 
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
@@ -270,7 +271,12 @@ rule enrichment_on_training_sets:
         "results/gene_blood_background_new_seed.txt",
         "results/blood_responder_sampled_50genes.txt"
     output:
-        "results/blood_50_genes.rds"
+        "results/blood_25_genes.rds",
+        "results/blood_50_genes.rds",
+        "results/blood_100_genes.rds",
+        "results/tumour_25_genes.rds",
+        "results/tumour_50_genes.rds",
+        "results/tumour_100_genes.rds"
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:
@@ -280,7 +286,12 @@ rule barplot_on_enrichment_results_for_training_sets:
     input:
         "results/blood_50_genes.rds"
     output:
-        "results/barplots_blood_samp50.png"
+        "results/barplots_blood_samp25.png",
+        "results/barplots_blood_samp50.png",
+        "results/barplots_blood_samp100.png",
+        "results/barplots_tumour_samp25.png",
+        "results/barplots_tumour_samp50.png",
+        "results/barplots_tumour_samp100.png"
     singularity:
         "docker://wlc27/dream_computational_workflow_r_container:v1"
     script:

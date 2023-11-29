@@ -40,6 +40,7 @@ write(unique(tail(tumour, 100)$features), "results/tumour_responder_sampled_100g
 write(unique(head(tumour, 100)$features), "results/tumour_nonresponder_sampled_100genes.txt")
 write(unique(tumour$features), "results/gene_tumour_background_new_seed.txt")
 
+
 mat_blood1 <- get_multiblock_matrix(100, no_norm, "blood_tpt0")
 blood1 <- data.frame(colMeans(mat_blood1))
 blood1$features <- rownames(blood1)
